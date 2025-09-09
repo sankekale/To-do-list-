@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>To-Do List</title>
+  <link rel="stylesheet" href="style3.css">
+</head>
+<body>
+  <div class="box">
+    <h2>To-Do List</h2>
+    <input id="taskInput" type="text" placeholder="Enter task">
+    <button onclick="addTask()">Add</button>
+    <button onclick="clearAll()">Clear All</button>
+    <br>
+    <select id="filter" onchange="showTasks()">
+      <option value="all">All</option>
+      <option value="done">Completed</option>
+      <option value="pending">Pending</option>
+    </select>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const input=document.getElementById("taskInput");
+    const list=document.getElementById("taskList");
+    const filter=document.getElementById("filter");
+
+    let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
+
+    function save(){localStorage.setItem("tasks",JSON.stringify(tasks));}
+
+    function addTask(){
+      if(!input.value.trim()) return;
+      tasks.push({text:input.value,done:false});
+      input.value=""; save(); showTasks();
+    }
+
+    function toggleTask(i){tasks[i].done=!tasks[i].done; save(); showTasks();}
+    function deleteTask(i){tasks.splice(i,1); save(); showTasks();}
+    function clearAll(){tasks=[]; save(); showTasks();}
+
+    function showTasks(){
+      list.innerHTML="";
+      tasks.forEach((t,i)=>{
+        if(filter.value==="done" && !t.done) return;
+        if(filter.value==="pending" && t.done) return;
+        let li=document.createElement("li");
+        li.className=t.done?"done":"";
+        li.innerHTML=`${t.text}
+          <button onclick="toggleTask(${i})">Done</button>
+          <button onclick="deleteTask(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    input.addEventListener("keypress",e=>{if(e.key==="Enter") addTask();});
+    showTasks();
+  </script>
+</body>
+</html>
